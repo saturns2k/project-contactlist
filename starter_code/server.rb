@@ -3,6 +3,7 @@ require_relative './db/connection'
 require_relative './lib/category'
 require_relative './lib/contact'
 require 'active_support'
+require 'pry'
 
 after do
   ActiveRecord::Base.connection.close
@@ -27,7 +28,6 @@ end
 
 post("/categories") do
   category = Category.create(category_params(params))
-
   category.to_json
 end
 
