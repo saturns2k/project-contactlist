@@ -3,19 +3,38 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Contacts</title>
+	<link href="stylesheets/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="stylesheets/styles.css" rel="stylesheet" media="screen">
 	<script type="text/javascript" src="/javascripts/jquery.js"></script>
 	<script type="text/javascript" src="/javascripts/scripts.js"></script>
+	<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
 </head>
 <body>
-    <div class="category">
-    </div>
-    <div class="search">
-    	<label>Search Bar</label>
-    	<input type="text" placeholder = "Search for...">
-    	<button>Search</button>
-    </div>
-    <br><br>
-    <div class="contacts">
-    </div>
+	<div class = "row">
+		<div class = "col-md-12">
+			<h1>Contacts</h1>
+		</div>
+	</div>
+
+	<div class = "column" id="firstcolumn">
+		<div class ="col-md-3">
+
+		    <div class="category">
+		    </div>
+		    <form class="form-inline"> 
+			    <div class="search form-group" id="searchbar">
+			    	<label>Search Bar</label><br>
+			    	<input type="text" class="form-control" placeholder = "Search for...">
+			    	<button class="btn btn-primary">Search</button>
+			    </div>
+			</form>
+
+		</div>
+	</div>
+
+	<div class = "column">
+	    <div class="contacts col-md-6">
+	    </div>
+	</div>
 </body>
 </html>

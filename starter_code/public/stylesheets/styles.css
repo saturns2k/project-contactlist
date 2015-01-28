@@ -1,0 +1,34 @@
+h1 { text-align: center;
+	font-family: "comic sans ms";
+	font-size: 4em;
+	margin-top: 30px;
+    margin-bottom: 50px;
+
+}
+
+div.category {
+	margin-left: 10px;
+	margin-top: 20px;
+}
+
+p {
+	margin-top:5px;
+	margin-bottom:5px;
+}
+
+h4 {
+	margin-top:-5px;
+	margin-bottom:5px;
+}
+
+#addbinder {
+	margin-top: 20px;
+}
+
+#searchbar {
+	margin-left: 10px;
+}
+
+#firstcolumn {
+	text-align: center;
+}

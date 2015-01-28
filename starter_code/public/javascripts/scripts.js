@@ -5,19 +5,21 @@ window.onload = function (){
 	{
 		data.forEach(function(contact){
 			if (contact.category_id === catindex){
-				var contactinfo = $('<div id="'+ contact.id +'">' +
-					'<img src="'+ contact.picture + '" width = "200">' +
-					'<br>' + contact.name + '<br>' +
-					'age : ' + contact.age + '<br>' +
+				var contactinfo = $('<div id="'+ contact.id +'" class="row">' +
+					'<div class="col-md-4" id="picfield">' + 
+					'<img src="'+ contact.picture + '" width = "200" class="img-rounded"></div>' +
+					'<div class="col-md-4" id="datafield">' +
+					'<br><h4>' + contact.name + '</h4><br>' +
+					'<p>age : ' + contact.age + '<br>' +
 					'address : ' + contact.address + '<br>' +
-					'phone : ' +  contact.phone_number + '<br>');
+					'phone : ' +  contact.phone_number + '<p><br></div>');
 
-				var editbutton = $('<input type="button" value="edit">');
-				var deletebutton = $('<input type="button" value="delete">');
+				var editbutton = $('<input type="button" class="btn btn-primary" id = "edit" value="edit">');
+				var deletebutton = $('<input type="button" class="btn btn-primary" value="delete">');
 
 				editbutton.click(function(){
-					this.disabled = true;
-					editcontact(contact.id, catindex);
+					$("#editfield").parent().remove();
+					editcontact(contact, catindex);
 				})
 
 				deletebutton.click(function(){
@@ -25,25 +27,28 @@ window.onload = function (){
 				})
 
 				$(".contacts").append(contactinfo)
-				$("#"+contact.id).append(editbutton).append(deletebutton).append('</div>');
+				$("#"+contact.id).find("#datafield").append(editbutton).append(deletebutton);
+				$("#"+contact.id).append("</div>")
 			}
 		});
 	}
 
-	function editcontact(id, catindex)
+	function editcontact(memdata, catindex)
 	{
-		var inputname = $('<input id="inputname" placeholder = "name">');
-		var inputage = $('<input id="inputage" placeholder = "age">');
-		var inputaddress = $('<input id="inputaddress" placeholder = "address">');
-		var inputphone = $('<input id="inputphone" placeholder = "phone number">');
-		var inputsubmit = $('<button> submit </button>');
-		var inputchangecat = $('<select id="inputcat"></select>');
-		inputchangecat.append('<option value="">Select A Category...</option>')
+		var inputbinderform = $('<form class="form-inline" role="form"></form>');
+		var inputbinderdiv = $('<div id="editfield" class="col-md-3"></div>');
+		var inputname = $('<input class="form-control input-sm" value = "'+memdata.name+'" placeholder = "name">');
+		var inputage = $('<input class="form-control input-sm" value = "'+memdata.age+'" placeholder = "age">');
+		var inputaddress = $('<input class="form-control input-sm" value = "'+memdata.address+'" placeholder = "address">');
+		var inputphone = $('<input class="form-control input-sm" value = "'+memdata.phone_number+'" placeholder = "phone number">');
+		var inputsubmit = $('<button class="btn btn-default btn-sm"> submit </button>');
+		var inputchangecat = $('<select id="inputcat" class="form-control input-sm"></select>');
+		inputchangecat.append('<option value="">Change Category...</option>')
 
 		$.ajax({ url: '/categories' , type: 'GET'}).done(function(data){
 			data.forEach(function(catoption){
 				var choice = $('<option id="'+catoption["id"]+'">'+catoption["name"]+'</option>');
-				$('#inputcat').append(choice);			
+				$('#'+memdata.id).find('#inputcat').append(choice);			
 			});
 		});
 
@@ -51,7 +56,7 @@ window.onload = function (){
 			var selectedcatid = $("#inputcat option:selected")[0].id;
 			var editcontact = {category_id: selectedcatid};
 
-			$.ajax({ url: '/contacts/'+id, type: 'PUT', data: editcontact}).done(function(){
+			$.ajax({ url: '/contacts/'+memdata.id, type: 'PUT', data: editcontact}).done(function(){
 				// repetition ajax 4
 				$.ajax({ url: '/contacts' , type: 'GET'}).done(function(data){
 					$(".contacts").empty();
@@ -62,14 +67,15 @@ window.onload = function (){
 		});
 
 
-		inputsubmit.click(function(){
+		inputsubmit.click(function(e){
+			e.preventDefault();
 			// error trapping conditional
-			if (inputname.val() != "" && typeof(parseInt(inputage.val())) === "number"
+			if (inputname.val() != "" && !isNaN(inputage.val())
 				&& inputaddress.val() != "" && inputphone.val() != ""){
 				var editcontact = {name: inputname.val(), age: parseInt(inputage.val()), 
 					address: inputaddress.val(), phone_number: inputphone.val()};
 				
-				$.ajax({ url: '/contacts/'+id, type: 'PUT', data: editcontact}).done(function(){
+				$.ajax({ url: '/contacts/'+memdata.id, type: 'PUT', data: editcontact}).done(function(){
 					// repetition ajax 3
 					$.ajax({ url: '/contacts' , type: 'GET'}).done(function(data){
 						$(".contacts").empty();
@@ -80,12 +86,15 @@ window.onload = function (){
 			}
 			else {
 				$('#errormessage').remove();
-				$('#'+id).append('<p id="errormessage">Correct your edit field and try again<p>');
+				inputbinderdiv.append('<h5 id="errormessage">Correct your edit field and try again</h5>');
+				$('#editfield').addClass('has-error')
 			}
 
 		});
-		$('#'+id).append('<br>').append(inputname).append(inputage).append(inputaddress).append(inputphone);
-		$('#'+id).append(inputsubmit).append('<br>Change Catagory  ').append(inputchangecat);
+		inputbinderdiv.append('<br>').append(inputname).append(inputage).append(inputaddress).append(inputphone);
+		inputbinderdiv.append(inputsubmit).append(inputchangecat);
+		inputbinderform.append(inputbinderdiv)
+		$('#'+memdata.id).append(inputbinderform)
 	}
 
 	function deletecontact(id, catindex)
@@ -102,14 +111,19 @@ window.onload = function (){
 
 	function contactsadd(catindex)
 	{
-		var inputname = $('<input id="inputname" placeholder = "name">');
-		var inputage = $('<input id="inputage" placeholder = "age">');
-		var inputaddress = $('<input id="inputaddress" placeholder = "address">');
-		var inputphone = $('<input id="inputphone" placeholder = "phone number">');
-		var inputsubmit = $('<button> submit </button>');
-		$(".contacts").append('<br><label>Add New Contact</label><br>').append(inputname).append(inputage).append(inputaddress).append(inputphone).append(inputsubmit);
-		inputsubmit.click(function(){
-			if (inputname.val() != "" && typeof(parseInt(inputage.val())) === "number"
+		var inputbinderform = $('<form id = "addbinder" class="form-inline" role="form"></form>');
+		var inputbinderdiv = $('<div class="form-group"></div>')
+		var inputname = $('<input class="form-control" id="inputname" placeholder = "name">');
+		var inputage = $('<input class="form-control" id="inputage" placeholder = "age">');
+		var inputaddress = $('<input class="form-control" id="inputaddress" placeholder = "address">');
+		var inputphone = $('<input class="form-control" id="inputphone" placeholder = "phone number">');
+		var inputsubmit = $('<button class="btn btn-default">submit</button>');
+		inputbinderdiv.append('<br><label>Add New Contact</label><br>').append(inputname).append(inputage).append(inputaddress).append(inputphone).append(inputsubmit);
+		inputbinderform.append(inputbinderdiv)
+		$(".contacts").append(inputbinderform);
+		inputsubmit.click(function(e){
+			e.preventDefault();
+			if (inputname.val() != "" && !isNaN(inputage.val())
 				&& inputaddress.val() != "" && inputphone.val() != ""){
 				$.ajax({ url: 'http://api.randomuser.me/', dataType: 'json'}).done(function(picdata){
 					var randompic = picdata.results[0].user.picture.large;
@@ -128,7 +142,8 @@ window.onload = function (){
 			}
 			else {
 				$('#errormessage').remove();
-				$('.contacts').append('<p id="errormessage">Correct your edit field and try again<p>');
+				$('.contacts').append('<h5 id="errormessage">Correct your add field and try again<h5>');
+				$('#addbinder').children().addClass('has-error');
 			}
 		});
 	}
@@ -139,7 +154,7 @@ window.onload = function (){
 		data.forEach(function(catdata){
 			console.log(catdata);
 			var catname = $('<h3>'+catdata.name+'</h3>');
-			var catviewbutton = $('<input type=button value="View Contact">');
+			var catviewbutton = $('<input type=button class="btn btn-default" value="View Contact">');
 			catviewbutton.click(function(){
 				// repetition ajax call 2
 				$.ajax({ url: '/contacts' , type: 'GET'}).done(function(data){
@@ -153,22 +168,8 @@ window.onload = function (){
 		$(".category").append('<br><br><br>')
 	});
 
-// # CREATE TABLE categories(
-// #   id serial primary key,
-// #   name varchar(255)
-// # );
-
-// # CREATE TABLE contacts(
-// #   id serial primary key,
-// #   name varchar(255),
-// #   age integer,
-// #   address varchar(255),
-// #   phone_number varchar(255),
-// #   picture text,
-// #   category_id integer
-// # );
-
-	$('.search').find('button').click(function(){
+	$('.search').find('button').click(function(e){
+		e.preventDefault();
 		var searchkey = $('.search').find('input').val();
 		$.ajax({ url: '/contacts' , type: 'GET'}).done(function(data){
 			$(".contacts").empty();
@@ -181,32 +182,19 @@ window.onload = function (){
 		});
 	});
 
+	// # CREATE TABLE categories(
+	// #   id serial primary key,
+	// #   name varchar(255)
+	// # );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	// # CREATE TABLE contacts(
+	// #   id serial primary key,
+	// #   name varchar(255),
+	// #   age integer,
+	// #   address varchar(255),
+	// #   phone_number varchar(255),
+	// #   picture text,
+	// #   category_id integer
+	// # );
 
 }
