@@ -170,7 +170,7 @@ window.onload = function (){
 
 	$('.search').find('button').click(function(e){
 		e.preventDefault();
-		var searchkey = $('.search').find('input').val();
+		var searchkey = $('.search').find('input').val().toLowerCase();
 		$.ajax({ url: '/contacts' , type: 'GET'}).done(function(data){
 			$(".contacts").empty();
 			data.forEach(function(contactdata){
